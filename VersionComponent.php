@@ -130,6 +130,7 @@ class VersionComponent extends CApplicationComponent
      */
     protected function getHgVersion()
     {
-        return `hg log -r . --template '{latesttag}'`;
+        $output = `hg log -r . --template '{latesttag}'`;
+        return $output == 'null' ? '' : $output;
     }
 }
