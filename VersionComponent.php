@@ -26,6 +26,27 @@ class VersionComponent extends CApplicationComponent
     public $vcs;
 
     /**
+     * @var array
+     */
+    public $allowedIp;
+
+    /**
+     * @param array $allowedIp
+     */
+    public function setAllowedIp($allowedIp)
+    {
+        $this->allowedIp = $allowedIp;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllowedIp()
+    {
+        return (array) $this->allowedIp;
+    }
+
+    /**
      * Initialize component
      * @return void
      */
@@ -94,7 +115,7 @@ class VersionComponent extends CApplicationComponent
         if ($this->checkIsEnabled() && false === empty($this->vcs)) {
             switch (strtolower($this->vcs)) {
                 case 'git' :
-                    $v =  $this->getGitVersion();
+                    $v = $this->getGitVersion();
                     break;
                 default   :
                 case 'hg' :
@@ -105,7 +126,34 @@ class VersionComponent extends CApplicationComponent
         } else {
             return '';
         }
-        return !empty($v) ? $this->prefix . $v : '';
+
+        if ($this->isAllowedIp(Yii::app()->request->userHostAddress)) {
+            return !empty($v) ? $this->prefix . $v : '';
+        }
+        return '';
+    }
+
+
+    /**
+     * @param $ip
+     * @return bool
+     */
+    public function isAllowedIp($ip)
+    {
+        $allowedIp = $this->getAllowedIp();
+        if(empty($allowedIp)) {
+            return true;
+        }
+
+        foreach ($this->getAllowedIp() as $filter) {
+            if ($filter === '*'
+                || $filter === $ip
+                || (($pos = strpos($filter, '*')) !== false && !strncmp($ip, $filter, $pos))
+            ) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -131,6 +179,20 @@ class VersionComponent extends CApplicationComponent
     protected function getHgVersion()
     {
         $output = `hg log -r . --template '{latesttag}'`;
+        $output = null;
+        if (null == $output) {
+            try {
+                $webroot = Yii::getPathOfAlias('webroot');
+                $fileObj = new SplFileObject($webroot . '/.hgtags');
+                while ( ! $fileObj->eof()) {
+                    $line = $fileObj->fgets();
+                }
+                $lineComponents = explode(' ', $line);
+                $output = $lineComponents[1];
+            } catch (Exception $e) {
+                Yii::log('Version component has thrown an exception: ' . $e->getMessage(), CLogger::LEVEL_ERROR, 'components');
+            }
+        }
         return $output == 'null' ? '' : $output;
     }
 }
