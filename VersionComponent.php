@@ -179,19 +179,22 @@ class VersionComponent extends CApplicationComponent
     protected function getHgVersion()
     {
         $output = `hg log -r . --template '{latesttag}'`;
-        if (null == $output) {
+        if (null == $output || $output == 'NULL') {
             try {
                 $webroot = Yii::getPathOfAlias('webroot');
                 $fileObj = new SplFileObject($webroot . '/.hgtags');
+                $line = $previous = '';
                 while ( ! $fileObj->eof()) {
+                    $previous = $line;
                     $line = $fileObj->fgets();
                 }
-                $lineComponents = explode(' ', $line);
+                $lineComponents = empty($line) ? explode(' ', $previous) : explode(' ', $line);
                 $output = $lineComponents[1];
             } catch (Exception $e) {
                 Yii::log('Version component has thrown an exception: ' . $e->getMessage(), CLogger::LEVEL_ERROR, 'components');
             }
         }
+
         return $output == 'null' ? '' : $output;
     }
 }
