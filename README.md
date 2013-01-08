@@ -4,7 +4,7 @@
         'class' => 'wmdl.components.version.VersionComponent',
         'prefix' => 'v', // prefix before version (e.q. v1.2.1 or version-2.1.2)
         'enable' => true, 
-        'vcs' => 'hg' // type of VCS (git, mercurial (hg))
+        'vcs' => 'hg', // type of VCS (git, mercurial (hg))
         'allowedIp' => array( // ip filter (gii like) 
         	'*',
         	'192.168.*'
