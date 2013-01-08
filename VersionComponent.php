@@ -179,7 +179,6 @@ class VersionComponent extends CApplicationComponent
     protected function getHgVersion()
     {
         $output = `hg log -r . --template '{latesttag}'`;
-        $output = null;
         if (null == $output) {
             try {
                 $webroot = Yii::getPathOfAlias('webroot');
