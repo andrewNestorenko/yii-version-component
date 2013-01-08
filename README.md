@@ -1,14 +1,18 @@
-1) Для использования нужно добавить в файл настроек в раздел компонентов:
+1) You should add this part of code to your main.php file to the "components" part
 ```php
     'version' => array(
         'class' => 'wmdl.components.version.VersionComponent',
-        'prefix' => 'v', // префикс перед версией
-        'enable' => true, // включить либо выключить компонент
-        'vcs' => 'hg' // тип системы контроля версий из которой будем брать версию
+        'prefix' => 'v', // prefix before version (e.q. v1.2.1 or version-2.1.2)
+        'enable' => true, 
+        'vcs' => 'hg' // type of VCS (git, mercurial (hg))
+        'allowedIp' => array(
+        	'*',
+        	'192.168.*'
+        )
     ),
 ```
 
-2) Вставить в title
+2) Include verstion output in page title
 ```php
     <?php echo Yii::app()->getComponent('version')->getCurrentVersion(); ?>
 ````
